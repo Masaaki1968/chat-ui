@@ -1,6 +1,7 @@
 const SUPABASE_URL = 'https://rrdjjpgfafzxfrtlnzqs.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJyZGpqcGdmYWZ6eGZydGxuenFzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY3MjY2NTgsImV4cCI6MjA2MjMwMjY1OH0.UhoXjzCoKbfxnypm0-ADn-CG5GgDMcYlB9Ya4aNhmhA';
-const PROXY_URL = 'https://dify-proxy-api.onrender.com';
+const PROXY_URL = 'https://dify-proxy-api.onrender.com/chat';
+
 
 // 匿名ユーザーIDを localStorage に保持
 const USER_ID = localStorage.getItem('user_id') || (() => {
