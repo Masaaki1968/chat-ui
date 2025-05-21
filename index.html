@@ -1,16 +1,31 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LINE風AIチャット</title>
-  <link rel="stylesheet" href="css/style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AIチャットボット</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <style>
+    body { font-family: sans-serif; margin: 0; padding: 0; background: #f1f1f1; }
+    #historyList { padding: 12px; background: #fff8dc; border-bottom: 1px solid #ccc; }
+    #chatLog { height: 400px; overflow-y: scroll; padding: 12px; background: #e5ddd5; }
+    .message-wrapper { margin: 10px 0; display: flex; }
+    .message-wrapper.user { justify-content: flex-end; }
+    .message-wrapper.bot { justify-content: flex-start; }
+    .message { padding: 10px; border-radius: 12px; max-width: 60%; }
+    .message.user { background: #dcf8c6; }
+    .message.bot { background: #ffffff; }
+    .icon { width: 36px; height: 36px; margin-right: 8px; border-radius: 50%; }
+    #inputArea { display: flex; padding: 10px; background: #fff; }
+    #inputBox { flex: 1; padding: 10px; font-size: 16px; }
+    #sendBtn { padding: 10px; background: #4caf50; color: white; border: none; cursor: pointer; }
+  </style>
 </head>
 <body>
+  <div id="historyList"></div>
   <div id="chatLog"></div>
   <div id="inputArea">
-    <input type="text" id="inputBox" placeholder="メッセージを入力" />
+    <input type="text" id="inputBox" placeholder="メッセージを入力">
     <button id="sendBtn">送信</button>
   </div>
   <script src="js/main.js"></script>
