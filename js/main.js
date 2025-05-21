@@ -2,8 +2,6 @@ const SUPABASE_URL = 'https://rrdjjpgfafzxfrtlnzqs.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJyZGpqcGdmYWZ6eGZydGxuenFzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY3MjY2NTgsImV4cCI6MjA2MjMwMjY1OH0.UhoXjzCoKbfxnypm0-ADn-CG5GgDMcYlB9Ya4aNhmhA';
 const PROXY_URL = 'https://dify-proxy-api.onrender.com/chat';
 
-
-// 匿名ユーザーIDを localStorage に保持
 const USER_ID = localStorage.getItem('user_id') || (() => {
   const id = 'user-' + Math.random().toString(36).substring(2, 10);
   localStorage.setItem('user_id', id);
@@ -41,6 +39,37 @@ function addMessage(text, type = 'bot') {
   return message;
 }
 
+async function displayChatHistoryList() {
+  const { data, error } = await supabaseClient
+    .from('chat_logs')
+    .select('*')
+    .eq('user_id', USER_ID)
+    .order('created_at', { ascending: true });
+
+  if (error) {
+    console.error('履歴取得エラー:', error);
+    return;
+  }
+
+  const historyContainer = document.createElement('div');
+  historyContainer.style.padding = '12px';
+  historyContainer.style.background = '#fff8dc';
+  historyContainer.style.borderBottom = '1px solid #ccc';
+
+  const title = document.createElement('h3');
+  title.textContent = '📋 チャット履歴';
+  historyContainer.appendChild(title);
+
+  data.forEach(entry => {
+    const qa = document.createElement('div');
+    qa.style.marginBottom = '10px';
+    qa.innerHTML = `<strong>Q:</strong> ${entry.question}<br><strong>A:</strong> ${entry.answer}`;
+    historyContainer.appendChild(qa);
+  });
+
+  document.body.insertBefore(historyContainer, chatLog);
+}
+
 async function loadChatHistory() {
   const { data, error } = await supabaseClient
     .from('chat_logs')
@@ -68,14 +97,6 @@ sendBtn.onclick = async () => {
 
   const botDiv = addMessage('...', 'bot');
 
-  let loadingDots = 0;
-  let animationRunning = true;
-  const animInterval = setInterval(() => {
-    if (!animationRunning) return;
-    loadingDots = (loadingDots + 1) % 4;
-    botDiv.textContent = '入力中' + '.'.repeat(loadingDots);
-  }, 400);
-
   try {
     const response = await fetch(PROXY_URL, {
       method: 'POST',
@@ -91,40 +112,11 @@ sendBtn.onclick = async () => {
       })
     });
 
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder("utf-8");
-    let botReply = '';
+    const result = await response.json();
+    const botReply = result.answer || '（返答がありません）';
 
-    while (true) {
-      const { value, done } = await reader.read();
-      if (done) break;
-
-      const chunk = decoder.decode(value, { stream: true });
-      chunk.split('\n').forEach(line => {
-        if (line.startsWith('data:')) {
-          try {
-            const data = JSON.parse(line.replace('data: ', ''));
-
-            if (data.answer) {
-              if (animationRunning) {
-                animationRunning = false;
-                clearInterval(animInterval);
-              }
-
-              botReply += data.answer;
-              botDiv.textContent = botReply;
-              chatLog.scrollTop = chatLog.scrollHeight;
-            }
-
-            if (data.conversation_id) {
-              conversationId = data.conversation_id;
-            }
-          } catch (e) {
-            console.warn('JSON parse error:', e);
-          }
-        }
-      });
-    }
+    botDiv.textContent = botReply;
+    chatLog.scrollTop = chatLog.scrollHeight;
 
     const { error } = await supabaseClient.from('chat_logs').insert([
       {
@@ -139,8 +131,6 @@ sendBtn.onclick = async () => {
     }
 
   } catch (error) {
-    animationRunning = false;
-    clearInterval(animInterval);
     botDiv.textContent = '通信エラー: ' + error.message;
   }
 
@@ -152,5 +142,6 @@ inputBox.addEventListener("keydown", function(event) {
 });
 
 window.addEventListener('DOMContentLoaded', () => {
+  displayChatHistoryList();
   loadChatHistory();
 });
