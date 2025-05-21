@@ -85,7 +85,7 @@ sendBtn.onclick = async () => {
       body: JSON.stringify({
         query: query,
         user: USER_ID,
-        response_mode: 'streaming',
+        response_mode: 'blocking',
         conversation_id: conversationId || undefined,
         inputs: {}
       })
